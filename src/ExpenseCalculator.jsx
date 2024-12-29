@@ -70,6 +70,13 @@ const ExpenseCalculator = () => {
     return (expenses[month] || []).reduce((total, expense) => total + expense.amount, 0);
   };
 
+  const calculateYearlyTotal = () => {
+    const totalExpenses = months.reduce((sum, month) => sum + calculateMonthlyTotal(month), 0);
+    const totalSavings = income * 12 - totalExpenses;
+    return { totalExpenses, totalSavings };
+  };
+
+  const yearlyTotals = calculateYearlyTotal();
   const totalExpenses = calculateMonthlyTotal(selectedMonth);
   const savings = income - totalExpenses;
 
@@ -149,7 +156,7 @@ const ExpenseCalculator = () => {
       </header>
 
       <main className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <section className="p-6 rounded-lg shadow-md ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}">
+        <section className={`p-6 rounded-lg shadow-md ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
           <h2 className="text-xl font-semibold mb-4">Add Income & Expenses</h2>
           <div className="mb-4">
             <label htmlFor="income" className="block text-sm font-medium mb-1">
@@ -211,38 +218,29 @@ const ExpenseCalculator = () => {
 
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-md hover:bg-blue-700"
+              className={`w-full py-2 px-4 text-white font-semibold rounded-md ${theme === 'dark' ? 'bg-blue-500 hover:bg-blue-600' : 'bg-blue-600 hover:bg-blue-700'}`}
             >
               Add Expense
             </button>
           </form>
-          </section>
+        </section>
 
         <section className={`p-6 rounded-lg shadow-md ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'}`}>
-  <h2 className="text-xl font-semibold mb-4">Summary</h2>
-  <p className="mb-2">Selected Month: <strong>{selectedMonth}</strong></p>
-  <p className="mb-2">Total Expenses: <strong>${totalExpenses}</strong></p>
-  <p className="mb-2">Savings: <strong>${savings >= 0 ? savings : 0}</strong></p>
-
-  <h3 className="text-lg font-semibold mt-6 mb-2">Expense List</h3>
-  <ul className="list-disc ml-5">
-    {(expenses[selectedMonth] || []).map((expense, index) => (
-      <li key={index}>
-        {expense.name}: ${expense.amount}
-      </li>
-    ))}
-  </ul>
-</section>
-</main>
-
-<section className="mt-8">
-<h2 className="text-xl font-semibold mb-4">Financial Overview Graph</h2>
-<div className="p-4 rounded-lg shadow-md">
-  <LineChart data={chartData} options={chartOptions} />
-</div>
-</section>
-</div>
-);
+          <h2 className="text-xl font-semibold mb-4">Summary</h2>
+          <div className="mb-4">
+            <p className="text-sm">Selected Month: <strong>{selectedMonth}</strong></p>
+            <p className="text-sm">Total Monthly Expenses: <strong>${totalExpenses.toFixed(2)}</strong></p>
+            <p className="text-sm">Savings for {selectedMonth}: <strong>${savings.toFixed(2)}</strong></p>
+          </div>
+          <div className="mb-4">
+            <p className="text-sm">Yearly Total Expenses: <strong>${yearlyTotals.totalExpenses.toFixed(2)}</strong></p>
+            <p className="text-sm">Yearly Total Savings: <strong>${yearlyTotals.totalSavings.toFixed(2)}</strong></p>
+          </div>
+          <LineChart data={chartData} options={chartOptions} />
+        </section>
+      </main>
+    </div>
+  );
 };
 
 export default ExpenseCalculator;
